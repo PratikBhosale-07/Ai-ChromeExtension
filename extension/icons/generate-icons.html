@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Icon Generator — AI Copilot Panel</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #0f0f13; color: #f0f0f5; }
+    canvas { border-radius: 8px; margin: 8px; cursor: pointer; }
+    h2 { margin-bottom: 10px; }
+    p  { color: #9090a8; font-size: 13px; margin-bottom: 16px; }
+    button { padding: 10px 20px; background: #6366f1; color: #fff;
+             border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h2>AI Copilot — PNG Icon Generator</h2>
+  <p>Click "Generate & Download All" — save each file into the <code>icons/</code> folder.</p>
+  <div id="canvases"></div>
+  <br/>
+  <button onclick="downloadAll()">Generate &amp; Download All</button>
+
+  <script>
+    const sizes = [16, 32, 48, 128];
+
+    function drawIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Background gradient
+      const r = size * 0.22;
+      ctx.beginPath();
+      roundRect(ctx, 0, 0, size, size, r);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, '#6366f1');
+      grad.addColorStop(1, '#8b5cf6');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Stacked layers icon
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth   = size * 0.09;
+      ctx.lineCap     = 'round';
+      ctx.lineJoin    = 'round';
+
+      const cx = size / 2;
+      const p  = size * 0.15;
+      const h  = size * 0.14;
+
+      // Top layer (diamond)
+      ctx.beginPath();
+      ctx.moveTo(cx,     p);
+      ctx.lineTo(p,      cx - h);
+      ctx.lineTo(cx,     cx);
+      ctx.lineTo(size-p, cx - h);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Mid line
+      ctx.beginPath();
+      ctx.moveTo(p,      cx + h * 0.2);
+      ctx.lineTo(cx,     cx + h * 1.2);
+      ctx.lineTo(size-p, cx + h * 0.2);
+      ctx.stroke();
+
+      // Bottom line
+      ctx.beginPath();
+      ctx.moveTo(p,      cx + h * 1.6);
+      ctx.lineTo(cx,     cx + h * 2.6);
+      ctx.lineTo(size-p, cx + h * 1.6);
+      ctx.stroke();
+
+      return canvas;
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+    }
+
+    // Render previews
+    const container = document.getElementById('canvases');
+    sizes.forEach(s => {
+      const c = drawIcon(s);
+      c.title = `icon${s}.png — click to download`;
+      c.style.width = c.style.height = Math.max(s, 64) + 'px';
+      c.addEventListener('click', () => downloadCanvas(c, `icon${s}.png`));
+      container.appendChild(c);
+    });
+
+    function downloadCanvas(canvas, filename) {
+      const a = document.createElement('a');
+      a.download = filename;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    }
+
+    function downloadAll() {
+      sizes.forEach((s, i) => {
+        setTimeout(() => {
+          const c = drawIcon(s);
+          downloadCanvas(c, `icon${s}.png`);
+        }, i * 200);
+      });
+    }
+  </script>
+</body>
+</html>

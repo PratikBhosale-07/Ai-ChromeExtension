@@ -1,0 +1,12 @@
+# API Keys - Never commit these!
+config.js
+.env
+
+# Development
+node_modules/
+.DS_Store
+*.log
+
+# Build
+dist/
+build/

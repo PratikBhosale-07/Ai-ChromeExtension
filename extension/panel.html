@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AI Copilot</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="dark">
+
+<div id="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="logo-text">AI Copilot</span>
+  </div>
+  <div class="hdr-btns">
+    <button class="icon-btn" id="btnNewChat" title="New chat">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="btnCapture" title="Pause capture">
+      <svg id="icoCapture" width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <rect x="9" y="8" width="2" height="8" rx="1" fill="currentColor"/>
+        <rect x="13" y="8" width="2" height="8" rx="1" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="btnPresent" title="Presentation / screen-share mode">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="btnSettings" title="Settings">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+              stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- MODEL SELECTOR BAR -->
+<div class="model-bar">
+  <button class="model-chip active" data-model="auto" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">
+    ✨ Auto
+  </button>
+  <button class="model-chip" data-model="openai/gpt-4o-mini">
+    <img src="icons/chatgpt.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>GPT-4o mini
+  </button>
+  <button class="model-chip" data-model="anthropic/claude-3.5-sonnet">
+    <img src="icons/claude.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>Claude 3.5
+  </button>
+  <button class="model-chip" data-model="google/gemini-flash-1.5">
+    <img src="icons/gemini.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>Gemini Flash
+  </button>
+  <button class="model-chip" data-model="openai/gpt-4o">
+    <img src="icons/chatgpt.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>GPT-4o
+  </button>
+</div>
+
+<!-- MESSAGES AREA -->
+<div id="messages">
+
+  <!-- Welcome screen (hidden once chat starts) -->
+  <div id="welcome">
+    <div class="welcome-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="welcome-title">AI Copilot</div>
+    <div class="welcome-sub">Ask anything. Highlight text on any page<br>and it appears here automatically.</div>
+    <div class="starter-grid">
+      <button class="starter" data-q="Summarize what I'm reading on the page"> Summarize page</button>
+      <button class="starter" data-q="Explain this concept simply, like I'm 15"> Explain simply</button>
+      <button class="starter" data-q="Write a professional email about this topic"> Draft email</button>
+      <button class="starter" data-q="What are the key takeaways from this?"> Key points</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- INPUT AREA -->
+<div class="input-wrap">
+
+  <!-- Captured context pill -->
+  <div id="contextPill" class="hidden">
+    <span class="pill-icon">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span id="pillLabel">Captured text</span>
+    <button id="btnClearCtx" class="pill-close" title="Dismiss">&times;</button>
+  </div>
+
+  <div class="input-row">
+    <textarea id="inputMsg" rows="1" maxlength="16000"
+              placeholder="Message AI Copilot (Enter to send)"></textarea>
+    <button id="btnSend" title="Send">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2" fill="white"/>
+      </svg>
+    </button>
+    <button id="btnStop" title="Stop generation (Esc)" style="display:none;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <rect x="6" y="6" width="12" height="12" rx="1" fill="white" stroke="white" stroke-width="2"/>
+      </svg>
+    </button>
+  </div>
+  <div class="input-hint">Access to GPT-4, Claude & more via <a href="https://openrouter.ai" target="_blank" style="color:var(--text-sub)">OpenRouter</a></div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div id="settingsPanel" class="hidden">
+  <div class="settings-header">
+    <span>Settings</span>
+    <button class="icon-btn" id="btnCloseSettings" title="Close settings">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="settings-body">
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Auto-send captured text</div>
+        <div class="setting-sub">Automatically send highlighted text to AI</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="chkAutoSend" checked/>
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Float button on selection</div>
+        <div class="setting-sub">Show capture button when text is selected</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="chkFloat" checked/>
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Dark mode</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="chkDark" checked/>
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div style="padding-top:4px;">
+      <div class="sys-label">System prompt (optional)</div>
+      <textarea id="txSystem" placeholder="e.g. You are a helpful coding assistant."></textarea>
+    </div>
+
+    <div style="padding-top:12px;">
+      <div class="sys-label">OpenRouter API Key</div>
+      <input type="password" id="txOpenRouterKey" placeholder="sk-or-v1-..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-family:monospace;"/>
+      <div style="font-size:10px;color:var(--text-sub);margin-top:4px;">Get your key from <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--primary);">openrouter.ai/keys</a></div>
+    </div>
+
+    <div style="padding-top:8px;">
+      <div class="sys-label">Google Gemini API Key</div>
+      <input type="password" id="txGeminiKey" placeholder="AIza..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-family:monospace;"/>
+      <div style="font-size:10px;color:var(--text-sub);margin-top:4px;">Get your key from <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color:var(--primary);">Google AI Studio</a></div>
+    </div>
+
+    <div style="font-size:11px;color:var(--text-sub);padding-top:12px;">
+      <strong>Shortcuts</strong><br/>
+      Toggle panel: <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:10px;">Ctrl+Shift+A</kbd><br/>
+      Capture selection: <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:10px;">Ctrl+Shift+S</kbd>
+    </div>
+
+  </div>
+</div>
+
+<!-- PRESENTATION MODE OVERLAY -->
+<div id="presentOverlay" class="hidden">
+  <div class="present-inner">
+    <div class="present-logo">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="present-text">Panel hidden</div>
+    <div class="present-sub">Your AI conversation is hidden from screen sharing</div>
+    <button id="btnExitPresent">Show panel</button>
+  </div>
+</div>
+
+</div><!-- /#app -->
+
+<script src="panel.js"></script>
+</body>
+</html>
