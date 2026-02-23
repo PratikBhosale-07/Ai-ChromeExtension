@@ -72,6 +72,7 @@ If you accidentally exposed your API keys:
 ## 🛠️ Development
 
 Built with:
+
 - Chrome Extension Manifest V3
 - Vanilla JavaScript
 - OpenRouter API
@@ -84,6 +85,7 @@ MIT License - Feel free to use and modify
 ## 🤝 Contributing
 
 Contributions are welcome! Please ensure:
+
 - No API keys or sensitive data in commits
 - Follow existing code style
 - Test thoroughly before submitting PRs

@@ -1,23 +1,20 @@
 'use strict';
 
-//  API CONFIGURATION - Set your keys in Settings
+//  API CONFIGURATION
 let OPENROUTER_API_KEY = '';
-let GEMINI_API_KEY = '';
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1/models';
 
-const MODELS = {
-  'auto':                       { label: '✨ Auto',             desc: 'Smart model selection',     provider: 'auto' },
-  'openai/gpt-4o':              { label: 'GPT-4o',              desc: 'OpenAI / Most capable',     provider: 'openrouter' },
-  'openai/gpt-4o-mini':         { label: 'GPT-4o mini',         desc: 'OpenAI / Fast & smart',     provider: 'openrouter' },
-  'anthropic/claude-3.5-sonnet':{ label: 'Claude 3.5 Sonnet',   desc: 'Anthropic / Best reasoning',provider: 'openrouter' },
-  'anthropic/claude-3-haiku':   { label: 'Claude 3 Haiku',      desc: 'Anthropic / Fast',          provider: 'openrouter' },
-  'google/gemini-flash-1.5':    { label: 'Gemini Flash 1.5',    desc: 'Google / Fast & efficient', provider: 'openrouter' },
-  'google/gemini-pro-1.5':      { label: 'Gemini Pro 1.5',      desc: 'Google / Most capable',     provider: 'openrouter' },
-  'google/gemini-pro':          { label: 'Gemini Pro',          desc: 'Google / Versatile',        provider: 'openrouter' },
-  'meta-llama/llama-3.1-70b-instruct': { label: 'Llama 3.1 70B', desc: 'Meta / Open source',      provider: 'openrouter' },
-  'mistralai/mistral-large':    { label: 'Mistral Large',       desc: 'Mistral AI / Powerful',     provider: 'openrouter' },
-};
+const API_URL = 'https://openrouter.ai/api/v1';
+
+const MODELS = [
+  { id: 'openai/gpt-4o', label: 'GPT-4o', desc: 'OpenAI / Most capable' },
+  { id: 'openai/gpt-4o-mini', label: 'GPT-4o mini', desc: 'OpenAI / Fast & smart' },
+  { id: 'anthropic/claude-3-haiku', label: 'Claude 3 Haiku', desc: 'Anthropic / Fast' },
+  { id: 'meta-llama/llama-3.1-70b-instruct', label: 'Llama 3.1 70B', desc: 'Meta / Powerful open' },
+  { id: 'meta-llama/llama-3.1-8b-instruct', label: 'Llama 3.1 8B', desc: 'Meta / Fast open' },
+  { id: 'deepseek/deepseek-chat', label: 'DeepSeek V2.5', desc: 'DeepSeek / Best for coding' },
+  { id: 'qwen/qwen-2.5-72b-instruct', label: 'Qwen 2.5 72B', desc: 'Alibaba / Smart' },
+  { id: 'mistralai/mistral-large', label: 'Mistral Large', desc: 'Mistral / Powerful' },
+];
 
 //  STATE 
 let currentModel   = 'auto';
@@ -36,6 +33,7 @@ const inputMsg     = $('inputMsg');
 const btnSend      = $('btnSend');
 const btnStop      = $('btnStop');
 const btnNewChat   = $('btnNewChat');
+const btnRefresh   = $('btnRefresh');
 const btnCapture   = $('btnCapture');
 const icoCapture   = $('icoCapture');
 const btnPresent   = $('btnPresent');
@@ -52,11 +50,13 @@ const chkFloat     = $('chkFloat');
 const chkDark      = $('chkDark');
 const txSystem     = $('txSystem');
 const txOpenRouterKey = $('txOpenRouterKey');
-const txGeminiKey  = $('txGeminiKey');
+const modelBar     = $('modelBar');
 
 //  INIT 
 async function init() {
   await loadSettings();
+  renderModelBar(); // Render models based on selected provider
+  enableModelBarDragScroll(); // Enable mouse drag scrolling
   bindUI();
   bindMessages();
   if (inputMsg) inputMsg.focus();
@@ -76,17 +76,16 @@ if (document.readyState === 'loading') {
 //  SETTINGS 
 async function loadSettings() {
   const s = await chrome.storage.local.get([
-    'model','systemPrompt','darkMode','captureEnabled','autoSend','showFloat',
-    'openrouterKey','geminiKey'
+    'model','systemPrompt','darkMode','captureEnabled','autoSend','showFloat','openrouterKey'
   ]);
   
-  // Load API keys from storage
+  // Load API key
   if (s.openrouterKey) OPENROUTER_API_KEY = s.openrouterKey;
-  if (s.geminiKey) GEMINI_API_KEY = s.geminiKey;
   
-  // Validate model exists, otherwise use default
-  const savedModel = s.model ?? 'auto';
-  currentModel = MODELS[savedModel] ? savedModel : 'auto';
+  // Validate model exists
+  const savedModel = s.model ?? MODELS[0].id;
+  const modelIds = MODELS.map(m => m.id);
+  currentModel = modelIds.includes(savedModel) ? savedModel : MODELS[0].id;
   
   // If model was invalid, save the default
   if (savedModel !== currentModel) {
@@ -101,15 +100,83 @@ async function loadSettings() {
   chkDark.checked     = dark;
   txSystem.value      = systemPrompt;
   if (txOpenRouterKey) txOpenRouterKey.value = OPENROUTER_API_KEY;
-  if (txGeminiKey) txGeminiKey.value = GEMINI_API_KEY;
   document.body.classList.toggle('dark',  dark);
   document.body.classList.toggle('light', !dark);
-  // Activate chip
-  document.querySelectorAll('.model-chip')
-    .forEach(c => c.classList.toggle('active', c.dataset.model === currentModel));
 }
 
 function save(k, v) { chrome.storage.local.set({ [k]: v }); }
+
+// Render model bar
+function renderModelBar() {
+  if (!modelBar) return;
+  
+  modelBar.innerHTML = '';
+  
+  MODELS.forEach(model => {
+    const chip = document.createElement('button');
+    chip.className = 'model-chip';
+    chip.dataset.model = model.id;
+    chip.textContent = model.label;
+    chip.title = model.desc;
+    
+    if (model.id === currentModel) {
+      chip.classList.add('active');
+    }
+    
+    chip.addEventListener('click', () => {
+      currentModel = model.id;
+      save('model', currentModel);
+      document.querySelectorAll('.model-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+    
+    modelBar.appendChild(chip);
+  });
+}
+
+// Enable mouse drag scrolling for model bar
+function enableModelBarDragScroll() {
+  if (!modelBar) return;
+  
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+  
+  // Mouse drag scrolling
+  modelBar.addEventListener('mousedown', (e) => {
+    // Only enable drag on the bar itself, not on buttons
+    if (e.target.classList.contains('model-chip')) return;
+    
+    isDown = true;
+    modelBar.classList.add('dragging');
+    startX = e.pageX - modelBar.offsetLeft;
+    scrollLeft = modelBar.scrollLeft;
+  });
+  
+  modelBar.addEventListener('mouseleave', () => {
+    isDown = false;
+    modelBar.classList.remove('dragging');
+  });
+  
+  modelBar.addEventListener('mouseup', () => {
+    isDown = false;
+    modelBar.classList.remove('dragging');
+  });
+  
+  modelBar.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - modelBar.offsetLeft;
+    const walk = (x - startX) * 2; // Multiply for faster scroll
+    modelBar.scrollLeft = scrollLeft - walk;
+  });
+  
+  // Mouse wheel scrolling (convert vertical to horizontal)
+  modelBar.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    modelBar.scrollLeft += e.deltaY;
+  });
+}
 
 //  CHAT — SEND 
 async function sendMessage() {
@@ -180,73 +247,22 @@ function stopGeneration() {
   }
 }
 
-//  SMART MODEL SELECTION
-function selectBestModel(messages) {
-  const lastMessage = messages[messages.length - 1]?.content || '';
-  const messageLength = lastMessage.length;
-  const lowerText = lastMessage.toLowerCase();
-  
-  // Check for code-related queries
-  const codeKeywords = ['code', 'debug', 'function', 'api', 'script', 'program', 'error', 'bug', 'implement'];
-  const hasCode = codeKeywords.some(kw => lowerText.includes(kw)) || /```|`[^`]+`/.test(lastMessage);
-  
-  // Check for reasoning/analysis queries
-  const reasoningKeywords = ['analyze', 'explain', 'why', 'how', 'compare', 'evaluate', 'think', 'reason'];
-  const needsReasoning = reasoningKeywords.some(kw => lowerText.includes(kw));
-  
-  // Check for creative content
-  const creativeKeywords = ['write', 'create', 'generate', 'story', 'email', 'draft', 'compose'];
-  const isCreative = creativeKeywords.some(kw => lowerText.includes(kw));
-  
-  // Selection logic
-  if (messageLength > 1000 || needsReasoning) {
-    return 'anthropic/claude-3.5-sonnet';  // Best for complex reasoning
-  } else if (hasCode) {
-    return 'openai/gpt-4o-mini';  // Good balance for code
-  } else if (isCreative) {
-    return 'openai/gpt-4o-mini';  // Fast for creative tasks
-  } else if (messageLength < 200) {
-    return 'google/gemini-flash-1.5';  // Very fast for quick queries
-  } else {
-    return 'openai/gpt-4o-mini';  // Good default
-  }
-}
-
 //  AI API CALL
 async function callAI(messages, signal) {
-  let modelToUse = currentModel;
-  
-  // If auto mode, select best model
-  if (currentModel === 'auto') {
-    modelToUse = selectBestModel(messages);
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OpenRouter API key not configured. Please add it in Settings.');
   }
-  
-  const modelInfo = MODELS[modelToUse];
-  
-  if (!modelInfo) {
-    throw new Error(`Unknown model: ${modelToUse}`);
-  }
-  
-  if (modelInfo.provider === 'openrouter') {
-    return await callOpenRouter(messages, signal, modelToUse);
-  } else if (modelInfo.provider === 'gemini') {
-    return await callGemini(messages, signal);
-  }
-  
-  throw new Error(`Unsupported model provider: ${modelInfo.provider}`);
-}
 
-async function callOpenRouter(messages, signal, modelToUse = currentModel) {
   const body = {
-    model: modelToUse,
+    model: currentModel,
     messages: systemPrompt
       ? [{ role: 'system', content: systemPrompt }, ...messages]
       : messages,
     temperature: 0.7,
-    max_tokens: 1000,  // Reduced to fit within credit limits
+    max_tokens: 2000,
   };
 
-  const res = await fetch(OPENROUTER_API_URL, {
+  const res = await fetch(`${API_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -255,7 +271,7 @@ async function callOpenRouter(messages, signal, modelToUse = currentModel) {
       'X-Title': 'AI Copilot Extension',
     },
     body: JSON.stringify(body),
-    signal: signal,  // Pass abort signal to fetch
+    signal: signal,
   });
 
   if (!res.ok) {
@@ -264,7 +280,11 @@ async function callOpenRouter(messages, signal, modelToUse = currentModel) {
     if (res.status === 401) {
       errorMsg = 'Invalid OpenRouter API key. Please update your API key in Settings.';
     } else if (res.status === 402) {
-      errorMsg = 'OpenRouter: Insufficient credits. Please add credits or try Gemini models.';
+      errorMsg = 'OpenRouter: Insufficient credits. Please add credits to your account.';
+    } else if (res.status === 404) {
+      errorMsg = `Model "${currentModel}" not found. Try a different model.`;
+    } else if (res.status === 429) {
+      errorMsg = 'Rate limit reached. Please wait a moment and try again.';
     }
     throw new Error(errorMsg);
   }
@@ -276,57 +296,6 @@ async function callOpenRouter(messages, signal, modelToUse = currentModel) {
   }
   
   throw new Error('Unexpected response format from OpenRouter API');
-}
-
-async function callGemini(messages, signal) {
-  // Convert conversation format to Gemini format
-  const contents = [];
-  
-  // Add system instruction if present (Gemini uses systemInstruction separately)
-  const geminiMessages = systemPrompt 
-    ? [{ role: 'user', content: systemPrompt }, ...messages]
-    : messages;
-
-  // Convert to Gemini format: roles are 'user' or 'model'
-  for (const msg of geminiMessages) {
-    contents.push({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
-    });
-  }
-
-  const apiUrl = `${GEMINI_BASE_URL}/${currentModel}:generateContent?key=${GEMINI_API_KEY}`;
-  
-  const body = {
-    contents: contents,
-    generationConfig: {
-      temperature: 0.7,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 8192,
-    }
-  };
-
-  const res = await fetch(apiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    signal: signal,  // Pass abort signal to fetch
-  });
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    throw new Error(`Gemini API ${res.status}: ${errText.slice(0, 200)}`);
-  }
-
-  const data = await res.json();
-  
-  // Extract text from Gemini response
-  if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-    return data.candidates[0].content.parts[0].text.trim();
-  }
-  
-  throw new Error('Unexpected response format from Gemini API');
 }
 
 //  MESSAGE RENDERING 
@@ -465,16 +434,7 @@ function bindMessages() {
 
 //  UI BINDINGS 
 function bindUI() {
-
-  // Model chips
-  document.querySelectorAll('.model-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.model-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      currentModel = chip.dataset.model;
-      save('model', currentModel);
-    });
-  });
+  // Model chips are now bound in renderModelBar()
 
   // Send
   btnSend.addEventListener('click', sendMessage);
@@ -503,6 +463,13 @@ function bindUI() {
     inputMsg.value = '';
     inputMsg.focus();
   });
+
+  // Refresh
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', () => {
+      location.reload();
+    });
+  }
 
   // Starter chips
   document.querySelectorAll('.starter').forEach(s => {
@@ -546,17 +513,11 @@ function bindUI() {
     save('systemPrompt', systemPrompt);
   });
   
-  // API Keys
+  // API Key
   if (txOpenRouterKey) {
     txOpenRouterKey.addEventListener('change', () => {
       OPENROUTER_API_KEY = txOpenRouterKey.value.trim();
       save('openrouterKey', OPENROUTER_API_KEY);
-    });
-  }
-  if (txGeminiKey) {
-    txGeminiKey.addEventListener('change', () => {
-      GEMINI_API_KEY = txGeminiKey.value.trim();
-      save('geminiKey', GEMINI_API_KEY);
     });
   }
 }

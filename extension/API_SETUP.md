@@ -5,12 +5,14 @@ This extension requires API keys to function. Follow these steps to set up your 
 ## 1. Get Your API Keys
 
 ### OpenRouter (for GPT-4, Claude, etc.)
+
 1. Visit https://openrouter.ai/keys
 2. Sign up or log in
 3. Create a new API key
 4. Copy the key (starts with `sk-or-v1-...`)
 
 ### Google Gemini (Free)
+
 1. Visit https://makersuite.google.com/app/apikey
 2. Sign in with your Google account
 3. Create a new API key
@@ -38,15 +40,18 @@ This extension requires API keys to function. Follow these steps to set up your 
 ## Troubleshooting
 
 ### 401 Error (User not found)
+
 - Your OpenRouter API key is invalid or expired
 - Generate a new key at https://openrouter.ai/keys
 
 ### 402 Error (Insufficient credits)
+
 - Your OpenRouter account has no credits
 - Add credits at https://openrouter.ai/credits
 - Or use the free Gemini models instead
 
 ### API Key Not Saving
+
 - Make sure you clicked outside the input field after pasting
 - Check browser console for errors
 - Try clearing extension storage and re-entering keys

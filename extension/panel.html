@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>AI Copilot</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
@@ -26,6 +26,11 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
         <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
         <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="btnRefresh" title="Refresh">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
     <button class="icon-btn" id="btnCapture" title="Pause capture">
@@ -55,22 +60,8 @@
 </header>
 
 <!-- MODEL SELECTOR BAR -->
-<div class="model-bar">
-  <button class="model-chip active" data-model="auto" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">
-    ✨ Auto
-  </button>
-  <button class="model-chip" data-model="openai/gpt-4o-mini">
-    <img src="icons/chatgpt.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>GPT-4o mini
-  </button>
-  <button class="model-chip" data-model="anthropic/claude-3.5-sonnet">
-    <img src="icons/claude.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>Claude 3.5
-  </button>
-  <button class="model-chip" data-model="google/gemini-flash-1.5">
-    <img src="icons/gemini.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>Gemini Flash
-  </button>
-  <button class="model-chip" data-model="openai/gpt-4o">
-    <img src="icons/chatgpt.svg" alt="" style="width:14px;height:14px;border-radius:50%;"/>GPT-4o
-  </button>
+<div class="model-bar" id="modelBar">
+  <!-- Models will be dynamically loaded based on selected provider -->
 </div>
 
 <!-- MESSAGES AREA -->
@@ -126,7 +117,7 @@
       </svg>
     </button>
   </div>
-  <div class="input-hint">Access to GPT-4, Claude & more via <a href="https://openrouter.ai" target="_blank" style="color:var(--text-sub)">OpenRouter</a></div>
+  <div class="input-hint">Access to GPT-4o, Claude 3.5 Sonnet, Gemini Pro & more via OpenRouter</div>
 </div>
 
 <!-- SETTINGS PANEL -->
@@ -179,16 +170,12 @@
       <textarea id="txSystem" placeholder="e.g. You are a helpful coding assistant."></textarea>
     </div>
 
-    <div style="padding-top:12px;">
+    <div style="padding-top:12px; padding-bottom:8px; border-top: 1px solid var(--border); margin-top: 12px;">
+      <div style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px;">🔑 API Key</div>
+      
       <div class="sys-label">OpenRouter API Key</div>
       <input type="password" id="txOpenRouterKey" placeholder="sk-or-v1-..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-family:monospace;"/>
       <div style="font-size:10px;color:var(--text-sub);margin-top:4px;">Get your key from <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--primary);">openrouter.ai/keys</a></div>
-    </div>
-
-    <div style="padding-top:8px;">
-      <div class="sys-label">Google Gemini API Key</div>
-      <input type="password" id="txGeminiKey" placeholder="AIza..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-family:monospace;"/>
-      <div style="font-size:10px;color:var(--text-sub);margin-top:4px;">Get your key from <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color:var(--primary);">Google AI Studio</a></div>
     </div>
 
     <div style="font-size:11px;color:var(--text-sub);padding-top:12px;">
