@@ -287,13 +287,22 @@ header {
   flex-direction: row;
   flex-wrap: wrap;
 }
+.msg.user {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
 /* Message actions (copy button) */
 .msg-actions {
   width: 100%;
   display: flex;
-  padding-left: 34px;
   gap: 4px;
   margin-top: 2px;
+}
+.msg.assistant .msg-actions {
+  padding-left: 34px;
+}
+.msg.user .msg-actions {
+  justify-content: flex-end;
 }
 .act-btn {
   font-size: 11px;

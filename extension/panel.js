@@ -319,7 +319,7 @@ function appendMessage(role, content) {
   bubble.innerHTML = renderMarkdown(content);
 
   if (role === 'assistant') {
-    // Copy button
+    // Copy button for assistant
     const actions = document.createElement('div');
     actions.className = 'msg-actions';
     const copyBtn = document.createElement('button');
@@ -335,6 +335,48 @@ function appendMessage(role, content) {
       setTimeout(() => { copyBtn.innerHTML = copyBtn.innerHTML.replace('Copied!', 'Copy'); }, 1500);
     });
     actions.appendChild(copyBtn);
+    wrap.appendChild(bubble);
+    wrap.appendChild(actions);
+  } else if (role === 'user') {
+    // Copy and Edit buttons for user
+    const actions = document.createElement('div');
+    actions.className = 'msg-actions';
+    
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'act-btn';
+    copyBtn.title = 'Copy';
+    copyBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+      <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/>
+      </svg> Copy`;
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(content).catch(() => {});
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/>
+        </svg> Copy`; }, 1500);
+    });
+    
+    const editBtn = document.createElement('button');
+    editBtn.className = 'act-btn';
+    editBtn.title = 'Edit';
+    editBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg> Edit`;
+    editBtn.addEventListener('click', () => {
+      if (inputMsg) {
+        inputMsg.value = content;
+        inputMsg.focus();
+        // Adjust textarea height
+        inputMsg.style.height = 'auto';
+        inputMsg.style.height = Math.min(inputMsg.scrollHeight, 150) + 'px';
+      }
+    });
+    
+    actions.appendChild(copyBtn);
+    actions.appendChild(editBtn);
     wrap.appendChild(bubble);
     wrap.appendChild(actions);
   } else {
