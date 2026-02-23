@@ -39,9 +39,9 @@ async function buildContextMenus() {
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "send-text" && info.selectionText) {
-    await handleCapture({ type: "text", content: info.selectionText.trim(), source: tab?.url ?? "", tabId: tab?.id });
+    await pasteToInput({ type: "text", content: info.selectionText.trim(), source: tab?.url ?? "" }, tab);
   } else if (info.menuItemId === "analyze-image" && info.srcUrl) {
-    await handleCapture({ type: "image", content: info.srcUrl, source: tab?.url ?? "", tabId: tab?.id });
+    await pasteToInput({ type: "image", content: info.srcUrl, source: tab?.url ?? "" }, tab);
   } else if (info.menuItemId === "toggle-capture") {
     await toggleCapture();
   }
@@ -57,7 +57,31 @@ async function openPanel(windowId) {
   }
 }
 
-//  CAPTURE 
+//  PASTE TO INPUT
+async function pasteToInput(payload, tab) {
+  // Open panel first to ensure it's ready
+  if (tab?.windowId) await openPanel(tab.windowId);
+  
+  // Wait a bit for panel to be ready
+  await new Promise(resolve => setTimeout(resolve, 200));
+  
+  // Send paste message to panel
+  const sent = await sendPasteToPanel(payload);
+  if (!sent) {
+    // Store as pending if panel not ready
+    pendingPayload = payload;
+  }
+}
+
+async function sendPasteToPanel(payload) {
+  try { 
+    await chrome.runtime.sendMessage({ action: "PASTE_TO_INPUT", payload }); 
+    return true; 
+  }
+  catch { return false; }
+}
+
+//  CAPTURE (for keyboard shortcut)
 async function handleCapture(payload) {
   if (!captureEnabled) return;
   pendingPayload = payload;
@@ -106,33 +130,41 @@ chrome.commands.onCommand.addListener(async (command) => {
 //  MESSAGE HUB 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
-    switch (message.action) {
-      case "PANEL_READY":
-        sendResponse({ captureEnabled });
-        if (pendingPayload) {
-          const p = pendingPayload; pendingPayload = null;
-          setTimeout(() => sendToPanel(p), 400);
+    try {
+      switch (message.action) {
+        case "PANEL_READY":
+          if (pendingPayload) {
+            const p = pendingPayload; pendingPayload = null;
+            setTimeout(() => sendPasteToPanel(p), 400);
+          }
+          sendResponse({ captureEnabled });
+          break;
+        case "AUTO_CAPTURE":
+          if (captureEnabled) {
+            const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+            await pasteToInput(message.payload, tab);
+          }
+          sendResponse({ ok: true });
+          break;
+        case "GET_CAPTURE_STATE":
+          sendResponse({ captureEnabled });
+          break;
+        case "TOGGLE_CAPTURE":
+          await toggleCapture();
+          sendResponse({ captureEnabled });
+          break;
+        case "OPEN_PANEL": {
+          const [t] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+          if (t?.windowId) await openPanel(t.windowId);
+          sendResponse({ ok: true });
+          break;
         }
-        break;
-      case "AUTO_CAPTURE":
-        if (captureEnabled) await handleCapture(message.payload);
-        sendResponse({ ok: true });
-        break;
-      case "GET_CAPTURE_STATE":
-        sendResponse({ captureEnabled });
-        break;
-      case "TOGGLE_CAPTURE":
-        await toggleCapture();
-        sendResponse({ captureEnabled });
-        break;
-      case "OPEN_PANEL": {
-        const [t] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        if (t?.windowId) await openPanel(t.windowId);
-        sendResponse({ ok: true });
-        break;
+        default:
+          sendResponse({ ok: false });
       }
-      default:
-        sendResponse({ ok: false });
+    } catch (error) {
+      console.error('[AI Copilot] Message handler error:', error);
+      sendResponse({ ok: false, error: error.message });
     }
   })();
   return true;

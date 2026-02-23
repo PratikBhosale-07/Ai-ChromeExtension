@@ -437,6 +437,35 @@ function esc(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+//  PASTE TO INPUT HANDLING
+function handlePasteToInput(payload) {
+  if (!inputMsg) return;
+  
+  // Format content based on type
+  let contentText = '';
+  if (payload.type === 'image') {
+    contentText = `[Image: ${payload.content}]`;
+  } else {
+    contentText = payload.content;
+  }
+  
+  // Paste into input (append if there's existing text)
+  const currentValue = inputMsg.value.trim();
+  if (currentValue) {
+    inputMsg.value = currentValue + '\n\n' + contentText;
+  } else {
+    inputMsg.value = contentText;
+  }
+  
+  // Adjust textarea height and focus
+  resizeInput();
+  inputMsg.focus();
+  
+  // Scroll to end of textarea
+  inputMsg.selectionStart = inputMsg.value.length;
+  inputMsg.selectionEnd = inputMsg.value.length;
+}
+
 //  CAPTURE HANDLING 
 function handleCapture(payload) {
   pendingContext = payload;
@@ -461,11 +490,13 @@ function handleCapture(payload) {
 //  RUNTIME MESSAGES 
 function bindMessages() {
   chrome.runtime.onMessage.addListener((msg, _, send) => {
-    if (msg.action === 'CAPTURE_PAYLOAD') {
+    if (msg.action === 'PASTE_TO_INPUT') {
+      handlePasteToInput(msg.payload);
+      send({ ok: true });
+    } else if (msg.action === 'CAPTURE_PAYLOAD') {
       handleCapture(msg.payload);
       send({ ok: true });
-    }
-    if (msg.action === 'CAPTURE_STATE_CHANGED') {
+    } else if (msg.action === 'CAPTURE_STATE_CHANGED') {
       captureEnabled = msg.captureEnabled;
       syncCaptureBtn();
       send({ ok: true });

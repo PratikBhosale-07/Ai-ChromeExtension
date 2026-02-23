@@ -66,7 +66,14 @@
     hideBtn();
     const txt = window.getSelection()?.toString().trim();
     if (!txt) return;
-    await chrome.runtime.sendMessage({ action: "AUTO_CAPTURE", payload: { type: "text", content: txt, source: location.href } });
+    try {
+      await chrome.runtime.sendMessage({ action: "AUTO_CAPTURE", payload: { type: "text", content: txt, source: location.href } });
+    } catch (err) {
+      // Extension context invalidated - reload the page to reinject the script
+      if (err.message.includes('Extension context invalidated')) {
+        console.log('[AI Copilot] Extension reloaded. Refresh the page to use the updated version.');
+      }
+    }
   }
 
   function onMsg(msg) {
