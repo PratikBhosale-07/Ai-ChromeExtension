@@ -1,4 +1,4 @@
-# AI Copilot Chrome Extension
+# Genie - AI Assistant Chrome Extension
 
 A powerful Chrome extension that provides AI assistance with multiple models including GPT-4, Claude, and Gemini.
 

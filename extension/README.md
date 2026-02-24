@@ -1,4 +1,4 @@
-# AI Copilot Panel — Chrome Extension
+# Genie — Chrome Extension
 
 A free, private, universal AI assistant side panel for Chrome.  
 Capture text & images from any webpage and chat with ChatGPT, Gemini, Claude, or Perplexity — without switching tabs.
@@ -7,21 +7,21 @@ Capture text & images from any webpage and chat with ChatGPT, Gemini, Claude, or
 
 ## Feature Overview
 
-| Feature | Status |
-|---|---|
-| Side panel (Chrome sidePanel API) | ✅ |
-| AI provider switcher (ChatGPT / Gemini / Claude / Perplexity / Custom) | ✅ |
-| Text selection → auto-capture float button | ✅ |
-| Right-click → "Send to AI Copilot" | ✅ |
-| Right-click image → "Analyze image with AI" | ✅ |
-| Keyboard shortcuts (Ctrl+Shift+A / S) | ✅ |
-| Capture queue with send / copy / delete | ✅ |
-| Pause / Resume capture toggle | ✅ |
-| Presentation mode (hide panel during screen share) | ✅ |
-| Dark / Light theme | ✅ |
-| Auto-send on capture toggle | ✅ |
-| Custom AI URL support | ✅ |
-| 100% local — no server, no API keys, no tracking | ✅ |
+| Feature                                                                | Status |
+| ---------------------------------------------------------------------- | ------ |
+| Side panel (Chrome sidePanel API)                                      | ✅     |
+| AI provider switcher (ChatGPT / Gemini / Claude / Perplexity / Custom) | ✅     |
+| Text selection → auto-capture float button                             | ✅     |
+| Right-click → "Send to Genie"                                          | ✅     |
+| Right-click image → "Analyze image with AI"                            | ✅     |
+| Keyboard shortcuts (Ctrl+Shift+A / S)                                  | ✅     |
+| Capture queue with send / copy / delete                                | ✅     |
+| Pause / Resume capture toggle                                          | ✅     |
+| Presentation mode (hide panel during screen share)                     | ✅     |
+| Dark / Light theme                                                     | ✅     |
+| Auto-send on capture toggle                                            | ✅     |
+| Custom AI URL support                                                  | ✅     |
+| 100% local — no server, no API keys, no tracking                       | ✅     |
 
 ---
 
@@ -68,7 +68,7 @@ AIextension/
 
 ### Step 3 — Open the panel
 
-- Click the AI Copilot toolbar icon, **or**
+- Click the Genie toolbar icon, **or**
 - Press `Ctrl+Shift+A` (Windows/Linux) / `Cmd+Shift+A` (Mac)
 
 ---
@@ -76,31 +76,38 @@ AIextension/
 ## How to Use
 
 ### Capture selected text
-| Method | Action |
-|---|---|
-| Float button | Select text → click the purple **Ask AI** button |
-| Right-click menu | Select text → right-click → **Send to AI Copilot** |
-| Keyboard shortcut | Select text → `Ctrl+Shift+S` |
+
+| Method            | Action                                              |
+| ----------------- | --------------------------------------------------- |
+| Float button      | Select text → click the purple **Ask Genie** button |
+| Right-click menu  | Select text → right-click → **Send to Genie**       |
+| Keyboard shortcut | Select text → `Ctrl+Shift+S`                        |
 
 ### Capture an image
+
 Right-click any image → **Analyze image with AI**
 
 ### Paste into AI chat
+
 The captured content is written to your clipboard and the AI iframe is focused.  
 Press **Ctrl+V** in the chat input to paste, or enable **Auto-send** in Settings (the extension will attempt automatic paste).
 
 ### Switch AI provider
-Click a chip in the selector bar:  **ChatGPT · Gemini · Claude · Perplexity · Custom**
+
+Click a chip in the selector bar: **ChatGPT · Gemini · Claude · Perplexity · Custom**
 
 ### Capture queue
+
 Click **Captured [n]** drawer at the bottom of the panel to see all captured items.  
 Each item has **Send**, **Copy**, and **Delete** actions.
 
 ### Pause capture
+
 Click the **⏸ Pause** button in the header, or right-click anywhere → **⏸ Pause AI Capture**.  
 The float button will stop appearing and auto-send is suspended.
 
 ### Presentation mode (screen share)
+
 Click the **eye-slash** icon in the header.  
 All panel content is replaced with a blank screen, keeping your AI chat invisible during recordings or screen shares.  
 Click **Show panel** inside the overlay to return.
@@ -168,16 +175,16 @@ For sites that intercept keyboard events differently, the user can manually past
 
 ## Permissions Explained
 
-| Permission | Why |
-|---|---|
-| `activeTab` | Read current tab URL for source attribution |
-| `scripting` | Execute selection-capture script via keyboard shortcut |
-| `contextMenus` | "Send to AI" right-click menus |
-| `storage` | Persist settings & state locally |
-| `sidePanel` | Open the Chrome side panel |
-| `clipboardWrite` | Write captured content to clipboard |
-| `clipboardRead` | Read clipboard for optional processing |
-| `host_permissions: <all_urls>` | Allow content script on all pages |
+| Permission                     | Why                                                    |
+| ------------------------------ | ------------------------------------------------------ |
+| `activeTab`                    | Read current tab URL for source attribution            |
+| `scripting`                    | Execute selection-capture script via keyboard shortcut |
+| `contextMenus`                 | "Send to AI" right-click menus                         |
+| `storage`                      | Persist settings & state locally                       |
+| `sidePanel`                    | Open the Chrome side panel                             |
+| `clipboardWrite`               | Write captured content to clipboard                    |
+| `clipboardRead`                | Read clipboard for optional processing                 |
+| `host_permissions: <all_urls>` | Allow content script on all pages                      |
 
 No data is ever sent to any external server. Everything is local.
 
@@ -185,9 +192,9 @@ No data is ever sent to any external server. Everything is local.
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl+Shift+A` | Toggle side panel |
+| Shortcut       | Action                    |
+| -------------- | ------------------------- |
+| `Ctrl+Shift+A` | Toggle side panel         |
 | `Ctrl+Shift+S` | Capture current selection |
 
 Customise at `chrome://extensions/shortcuts`.

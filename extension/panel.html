@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>AI Copilot</title>
+  <title>Genie</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body class="dark">
@@ -14,12 +14,9 @@
 <header>
   <div class="logo">
     <div class="logo-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-              stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <img src="icons/Genie.png" alt="Genie" class="logo-image"/>
     </div>
-    <span class="logo-text">AI Copilot</span>
+    <span class="logo-text">Genie</span>
   </div>
   <div class="hdr-btns">
     <button class="icon-btn" id="btnNewChat" title="New chat">
@@ -70,12 +67,9 @@
   <!-- Welcome screen (hidden once chat starts) -->
   <div id="welcome">
     <div class="welcome-icon">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-              stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <img src="icons/Genie.png" alt="Genie" class="welcome-logo"/>
     </div>
-    <div class="welcome-title">AI Copilot</div>
+    <div class="welcome-title">Genie</div>
     <div class="welcome-sub">Ask anything. Highlight text on any page<br>and it appears here automatically.</div>
     <div class="starter-grid">
       <button class="starter" data-q="Summarize what I'm reading on the page"> Summarize page</button>
@@ -104,7 +98,7 @@
 
   <div class="input-row">
     <textarea id="inputMsg" rows="1" maxlength="16000"
-              placeholder="Message AI Copilot (Enter to send)"></textarea>
+              placeholder="Message Genie (Enter to send)"></textarea>
     <button id="btnSend" title="Send">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
         <line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2.5" stroke-linecap="round"/>

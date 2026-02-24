@@ -267,8 +267,8 @@ async function callAI(messages, signal) {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-      'HTTP-Referer': 'https://ai-copilot-extension.local',
-      'X-Title': 'AI Copilot Extension',
+      'HTTP-Referer': 'https://genie-extension.local',
+      'X-Title': 'Genie Extension',
     },
     body: JSON.stringify(body),
     signal: signal,
@@ -439,7 +439,12 @@ function esc(s) {
 
 //  PASTE TO INPUT HANDLING
 function handlePasteToInput(payload) {
-  if (!inputMsg) return;
+  console.log('[AI Copilot Panel] handlePasteToInput called with:', payload);
+  
+  if (!inputMsg) {
+    console.error('[AI Copilot Panel] Input element not found!');
+    return;
+  }
   
   // Format content based on type
   let contentText = '';
@@ -456,6 +461,8 @@ function handlePasteToInput(payload) {
   } else {
     inputMsg.value = contentText;
   }
+  
+  console.log('[AI Copilot Panel] Text pasted to input:', contentText.substring(0, 50) + '...');
   
   // Adjust textarea height and focus
   resizeInput();
@@ -483,13 +490,15 @@ function handleCapture(payload) {
   } else {
     inputMsg.focus();
     inputMsg.placeholder = 'Ask something about the captured content';
-    setTimeout(() => { inputMsg.placeholder = 'Message AI Copilot  (Ctrl+Enter to send)'; }, 4000);
+    setTimeout(() => { inputMsg.placeholder = 'Message Genie  (Ctrl+Enter to send)'; }, 4000);
   }
 }
 
 //  RUNTIME MESSAGES 
 function bindMessages() {
   chrome.runtime.onMessage.addListener((msg, _, send) => {
+    console.log('[AI Copilot Panel] Message received:', msg.action);
+    
     if (msg.action === 'PASTE_TO_INPUT') {
       handlePasteToInput(msg.payload);
       send({ ok: true });

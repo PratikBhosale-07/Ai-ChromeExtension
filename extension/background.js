@@ -1,5 +1,5 @@
 /**
- * AI Copilot Panel — Background Service Worker (Manifest V3)
+ * Genie — Background Service Worker (Manifest V3)
  */
 
 let captureEnabled = true;
@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     // Auto-open panel when toolbar icon clicked (Chrome 116+)
     await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   } catch (e) {
-    console.warn("[AI Copilot] setPanelBehavior:", e.message);
+    console.warn("[Genie] setPanelBehavior:", e.message);
   }
 });
 
@@ -30,7 +30,7 @@ async function restoreState() {
 //  CONTEXT MENUS 
 async function buildContextMenus() {
   chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({ id: "send-text", title: "Send to AI Copilot", contexts: ["selection"] });
+    chrome.contextMenus.create({ id: "send-text", title: "Send to Genie", contexts: ["selection"] });
     chrome.contextMenus.create({ id: "analyze-image", title: "Analyze image with AI", contexts: ["image"] });
     chrome.contextMenus.create({ id: "sep1", type: "separator", contexts: ["selection","image"] });
     chrome.contextMenus.create({ id: "toggle-capture", title: captureEnabled ? " Pause AI Capture" : " Resume AI Capture", contexts: ["all"] });
@@ -53,22 +53,34 @@ async function openPanel(windowId) {
     await chrome.sidePanel.open({ windowId });
     await chrome.sidePanel.setOptions({ path: "panel.html", enabled: true });
   } catch (e) {
-    console.warn("[AI Copilot] open panel:", e.message);
+    console.warn("[Genie] open panel:", e.message);
   }
 }
 
 //  PASTE TO INPUT
 async function pasteToInput(payload, tab) {
+  console.log('[Genie Background] pasteToInput called with:', { payload, tabId: tab?.id, windowId: tab?.windowId });
+  
   // Open panel first to ensure it's ready
-  if (tab?.windowId) await openPanel(tab.windowId);
+  if (tab?.windowId) {
+    console.log('[Genie Background] Opening panel...');
+    await openPanel(tab.windowId);
+  } else {
+    console.error('[Genie Background] No tab windowId, cannot open panel');
+    return;
+  }
   
   // Wait a bit for panel to be ready
   await new Promise(resolve => setTimeout(resolve, 200));
   
   // Send paste message to panel
+  console.log('[Genie Background] Sending PASTE_TO_INPUT message...');
   const sent = await sendPasteToPanel(payload);
+  console.log('[Genie Background] Message sent:', sent);
+  
   if (!sent) {
     // Store as pending if panel not ready
+    console.log('[Genie Background] Panel not ready, storing as pending');
     pendingPayload = payload;
   }
 }
@@ -78,7 +90,10 @@ async function sendPasteToPanel(payload) {
     await chrome.runtime.sendMessage({ action: "PASTE_TO_INPUT", payload }); 
     return true; 
   }
-  catch { return false; }
+  catch (err) { 
+    console.error('[Genie Background] Failed to send to panel:', err);
+    return false; 
+  }
 }
 
 //  CAPTURE (for keyboard shortcut)
@@ -140,9 +155,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           sendResponse({ captureEnabled });
           break;
         case "AUTO_CAPTURE":
+          console.log('[Genie Background] AUTO_CAPTURE received:', message.payload);
           if (captureEnabled) {
             const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+            console.log('[Genie Background] Tab found:', tab?.id, 'windowId:', tab?.windowId);
             await pasteToInput(message.payload, tab);
+          } else {
+            console.log('[Genie Background] Capture disabled, ignoring');
           }
           sendResponse({ ok: true });
           break;
@@ -163,7 +182,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           sendResponse({ ok: false });
       }
     } catch (error) {
-      console.error('[AI Copilot] Message handler error:', error);
+      console.error('[Genie] Message handler error:', error);
       sendResponse({ ok: false, error: error.message });
     }
   })();

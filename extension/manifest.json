@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AI Copilot Panel",
+  "name": "Genie",
   "version": "1.0.0",
-  "description": "Universal AI assistant with GPT-4, Claude, Gemini & more. Capture text and images from any page.",
+  "description": "Your AI genie with GPT-4, Claude, Gemini & more. Capture text and images from any page.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -42,7 +42,7 @@
     "default_path": "panel.html"
   },
   "action": {
-    "default_title": "Open AI Copilot Panel",
+    "default_title": "Open Genie",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
@@ -56,7 +56,7 @@
         "default": "Ctrl+Shift+A",
         "mac": "Command+Shift+A"
       },
-      "description": "Toggle AI Copilot Panel"
+      "description": "Toggle Genie Panel"
     },
     "capture-selection": {
       "suggested_key": {
@@ -66,6 +66,12 @@
       "description": "Capture selected text to AI panel"
     }
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/Genie.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://openrouter.ai https://generativelanguage.googleapis.com;"
   }

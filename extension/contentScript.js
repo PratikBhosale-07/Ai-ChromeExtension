@@ -21,11 +21,29 @@
 
   //  FLOAT BUTTON 
   function injectFloatBtn() {
+    // Inject keyframes for border animation
+    if (!document.getElementById('__genie-btn-styles')) {
+      const style = document.createElement('style');
+      style.id = '__genie-btn-styles';
+      style.textContent = `
+        @keyframes genieBorderGlow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7), 0 4px 15px rgba(15, 23, 42, 0.5); }
+          50% { box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.4), 0 4px 20px rgba(124, 58, 237, 0.6); }
+        }
+        #__ai-copilot-btn:hover {
+          animation: genieBorderGlow 1.5s ease-in-out infinite;
+          transform: translateY(-2px);
+          background: #0c1a30 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
     floatBtn = document.createElement("div");
     floatBtn.id = "__ai-copilot-btn";
     floatBtn.setAttribute("data-copilot-ui", "true");
-    floatBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ask AI</span>';
-    floatBtn.style.cssText = "position:fixed;z-index:2147483647;display:none;align-items:center;gap:6px;padding:6px 12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:20px;font-size:13px;font-family:-apple-system,sans-serif;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(99,102,241,.4);user-select:none;pointer-events:auto;";
+    floatBtn.innerHTML = '<img src="' + chrome.runtime.getURL('icons/Genie.png') + '" style="width:32px;height:32px;object-fit:contain;flex-shrink:0;margin:-4px 0;"><span style="line-height:24px;">Ask Genie</span>';
+    floatBtn.style.cssText = "position:fixed;z-index:2147483647;display:none;align-items:center;gap:6px;padding:6px 12px 6px 6px;background:#0f172a;color:#fff;border-radius:24px;font-size:13px;font-family:-apple-system,sans-serif;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(15,23,42,.5);user-select:none;pointer-events:auto;transition:all 0.3s ease;border:1px solid rgba(124,58,237,0.3);";
     floatBtn.addEventListener("click", onFloatClick);
     document.body.appendChild(floatBtn);
   }
@@ -66,12 +84,22 @@
     hideBtn();
     const txt = window.getSelection()?.toString().trim();
     if (!txt) return;
+    
+    console.log('[Genie] Float button clicked, sending:', txt.substring(0, 50) + '...');
+    
     try {
-      await chrome.runtime.sendMessage({ action: "AUTO_CAPTURE", payload: { type: "text", content: txt, source: location.href } });
+      const response = await chrome.runtime.sendMessage({ 
+        action: "AUTO_CAPTURE", 
+        payload: { type: "text", content: txt, source: location.href } 
+      });
+      console.log('[Genie] Message sent, response:', response);
     } catch (err) {
+      console.error('[Genie] Error sending message:', err);
       // Extension context invalidated - reload the page to reinject the script
       if (err.message.includes('Extension context invalidated')) {
-        console.log('[AI Copilot] Extension reloaded. Refresh the page to use the updated version.');
+        alert('Genie extension was reloaded. Please refresh this page to continue using it.');
+      } else {
+        alert('Genie: ' + err.message);
       }
     }
   }
